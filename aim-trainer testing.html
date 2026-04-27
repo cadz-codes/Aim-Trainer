@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Aim Trainer</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1, h2 {
+      margin: 10px;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100vw;
+      height: 90vh;
+    }
+
+    .target {
+      width: 80px;
+      height: 80px;
+      background: red;
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎯 Aim Trainer</h1>
+<h2>Score: <span id="score">0</span></h2>
+<button onclick="startGame()">Start</button>
+
+<div id="gameArea"></div>
+
+<script>
+let score = 0;
+let target = null;
+let gameInterval;
+
+const gameArea = document.getElementById("gameArea");
+
+function spawnTarget() {
+  if (target) target.remove();
+
+  target = document.createElement("div");
+  target.classList.add("target");
+
+  const size = 80;
+
+  // random position within screen
+  const x = Math.random() * (window.innerWidth - size);
+  const y = Math.random() * (window.innerHeight - size - 100);
+
+  target.style.left = x + "px";
+  target.style.top = y + "px";
+
+  target.addEventListener("click", hitTarget);
+
+  gameArea.appendChild(target);
+}
+
+function hitTarget(e) {
+  const rect = target.getBoundingClientRect();
+
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+
+  const distance = Math.sqrt(
+    (clickX - centerX) ** 2 +
+    (clickY - centerY) ** 2
+  );
+
+  const radius = rect.width / 2;
+
+  if (distance <= radius) {
+    score++;
+    document.getElementById("score").textContent = score;
+    spawnTarget(); // instantly move to new spot
+  }
+}
+
+function startGame() {
+  score = 0;
+  document.getElementById("score").textContent = score;
+
+  clearInterval(gameInterval);
+
+  spawnTarget();
+
+  gameInterval = setInterval(spawnTarget,1000);
+
+  setTimeout(() => {
+    clearInterval(gameInterval);
+    if (target) target.remove();
+    alert("Game Over! Score: " + score);
+  }, 20000);
+}
+</script>
+
+</body>
+</html>
